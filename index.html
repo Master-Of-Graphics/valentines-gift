@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Happy Valentine's Day — Master of Graphics</title>
+  <style>
+    :root{
+      --bg1:#ff758c; --bg2:#ff7eb3; --accent:#ff1e56; --muted:#f7e9ef;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+    body{
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,0.06), transparent),
+                  linear-gradient(135deg,var(--bg1),var(--bg2));
+      color:#fff; text-align:center; overflow:hidden;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+
+    header{padding:36px 20px;}
+    h1{
+      margin:0;font-size:2.6rem;letter-spacing:0.6px;
+      text-shadow:0 6px 30px rgba(0,0,0,0.25);
+      display:inline-block;padding:8px 18px;border-radius:14px;background:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    }
+
+    .center-card{
+      margin:28px auto 0; padding:18px; border-radius:14px;
+      background:rgba(255,255,255,0.06); width:min(920px,94%); box-shadow:0 10px 40px rgba(0,0,0,0.25);
+    }
+
+    .status-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:center;}
+    .btn{
+      background:var(--accent); color:#fff; border:none;padding:12px 18px;border-radius:10px;font-weight:600;cursor:pointer;
+      transition:transform .18s ease, box-shadow .18s ease;
+    }
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.12);}
+    .btn:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,0.25);}
+
+    .form-row{margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+    input[type="text"], input[type="number"]{
+      padding:12px 14px;border-radius:10px;border:none;min-width:160px;font-size:1rem;
+      outline:none;background:rgba(255,255,255,0.06);color:#fff;
+    }
+
+    .message{
+      margin-top:22px;font-size:1.15rem;padding:14px 18px;border-radius:12px;background:rgba(255,255,255,0.04);
+      display:inline-block;
+    }
+
+    footer{position:fixed;left:0;right:0;bottom:12px;text-align:center;font-size:0.9rem;opacity:0.9;}
+
+    /* Dull single screen polished */
+    .single-screen{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;
+      background:linear-gradient(180deg,#1b1b1f,#0f0f12);color:#d6d6d6;padding:24px;
+    }
+    .single-card{
+      max-width:760px;padding:36px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+      box-shadow:0 30px 80px rgba(0,0,0,0.6);text-align:center;
+    }
+    .single-title{font-size:2.6rem;color:var(--accent);text-shadow:0 6px 30px rgba(255,30,86,0.12);margin:0;}
+    .broken-heart{font-size:4.2rem;margin:18px 0;animation:floatUp 5s ease-in-out infinite;}
+    .single-text{color:#bdbdbd;font-size:1.05rem;line-height:1.6;margin-bottom:18px;opacity:0.95;}
+    .try-again{margin-top:12px;}
+
+    @keyframes floatUp{
+      0%{transform:translateY(0);opacity:1}
+      50%{transform:translateY(-18px);opacity:0.9}
+      100%{transform:translateY(0);opacity:1}
+    }
+
+    /* Effects container (holds emoji nodes) */
+    .effects-layer{position:fixed;inset:0;pointer-events:none;z-index:40;overflow:hidden;}
+
+    /* Generic effect style */
+    .effect{
+      position:absolute;will-change:transform,opacity;pointer-events:none;font-size:28px;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.35));
+      transform-origin:center center;
+    }
+
+    @keyframes riseSlow{from{transform:translateY(0) scale(1);opacity:1}to{transform:translateY(-720px) scale(0.9);opacity:0}}
+    @media (prefers-reduced-motion: reduce){
+      .effect{animation:none !important;opacity:0.9}
+    }
+
+    /* Controls panel removed from name-input screen per request */
+
+    @media (max-width:520px){
+      h1{font-size:1.6rem}
+      .single-title{font-size:1.8rem}
+      .broken-heart{font-size:3rem}
+    }
+  </style>
+</head>
+<body>
+  <header><h1>💖 Happy Valentine's Day</h1></header>
+
+  <main style="display:flex;flex-direction:column;align-items:center;">
+    <!-- Relationship status choice -->
+    <div class="center-card" id="statusCard" aria-hidden="false">
+      <div style="font-size:1.05rem;margin-bottom:10px">Are you single or not?</div>
+      <div class="status-row">
+        <button class="btn" onclick="chooseStatus('taken')">Not Single</button>
+        <button class="btn secondary" onclick="chooseStatus('single')">Single</button>
+      </div>
+      <div style="margin-top:12px;color:rgba(255,255,255,0.75)">Choose to continue</div>
+    </div>
+
+    <!-- Names form (hidden until 'taken') -->
+    <div class="center-card" id="formCard" style="display:none;">
+      <div style="font-weight:700;font-size:1.05rem">Enter your names</div>
+      <div class="form-row">
+        <input id="boy" type="text" placeholder="Boy's name" aria-label="Boy's name">
+        <input id="girl" type="text" placeholder="Girl's name" aria-label="Girl's name">
+        <button class="btn" id="celebrateBtn" onclick="celebrateLove()">Celebrate Love</button>
+      </div>
+
+      <!-- Controls removed: Intensity, Sound, Active cap -->
+
+      <div class="message" id="loveMessage" role="status" aria-live="polite" style="display:none"></div>
+    </div>
+  </main>
+
+  <div class="effects-layer" id="effectsLayer" aria-hidden="true"></div>
+
+  <footer>Made with ❤️ just for you — <em>From the Master of Graphics</em></footer>
+
+  <audio id="bgAudio" loop preload="none"></audio>
+
+  <script>
+    (function(){
+      // Elements
+      const statusCard = document.getElementById('statusCard');
+      const formCard = document.getElementById('formCard');
+      const loveMessage = document.getElementById('loveMessage');
+      const effectsLayer = document.getElementById('effectsLayer');
+      const bgAudio = document.getElementById('bgAudio');
+      const celebrateBtn = document.getElementById('celebrateBtn');
+
+      // 50 emoji palette
+      const EMOJIS = [
+        "💖","❤️","🌹","✨","🎉","🔥","🌈","🌟","🦋","🍫",
+        "💎","🎶","💘","💞","💓","💗","💜","💙","💚","💛",
+        "🕊️","🌸","🌼","🌻","🍷","🍭","🍩","🍪","🍎","🍒",
+        "🍓","🥂","🎊","🎆","🎇","🎵","🎤","💐","🌺","🌷",
+        "🌙","⭐","☀️","⚡","🌊","🌌","🧸","🎁","💍","👑"
+      ];
+
+      // State
+      let intervals = [];
+      let activeCount = 0;
+      let pool = [];
+      let running = false;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Defaults (fixed internal defaults since controls removed)
+      const DEFAULT_INTENSITY = 1.0; // high intensity
+      const DEFAULT_ACTIVE_CAP = 120;
+
+      // Warm pool
+      for(let i=0;i<30;i++) pool.push(document.createElement('div'));
+
+      // Helpers
+      function createEffectNode(){
+        let node = pool.pop();
+        if(node) return node;
+        node = document.createElement('div');
+        node.className = 'effect';
+        return node;
+      }
+      function recycleNode(node){
+        node.style.animation = '';
+        node.removeAttribute('style');
+        node.className = 'effect';
+        node.innerHTML = '';
+        pool.push(node);
+      }
+
+      function spawnEmoji(emoji, opts = {}){
+        const maxActive = DEFAULT_ACTIVE_CAP;
+        if(activeCount >= maxActive) return;
+        activeCount++;
+        const node = createEffectNode();
+        node.innerHTML = emoji;
+        const size = opts.size || (16 + Math.random()*36);
+        node.style.fontSize = size + 'px';
+
+        const startX = Math.random() * Math.max(1, window.innerWidth - 40);
+        const startY = window.innerHeight + 20;
+        node.style.left = startX + 'px';
+        node.style.top = startY + 'px';
+        node.style.opacity = 1;
+
+        const duration = opts.duration || (3000 + Math.random()*4200);
+        const rotate = (Math.random()*60 - 30);
+        const drift = (Math.random()*160 - 80);
+
+        if(!reducedMotion){
+          node.style.animation = `riseSlow ${duration}ms linear forwards`;
+          node.style.transform = `translateX(0) rotate(${rotate}deg)`;
+          setTimeout(()=> {
+            node.style.transition = `transform ${duration}ms linear`;
+            node.style.transform = `translateX(${drift}px) rotate(${rotate + (Math.random()*120-60)}deg)`;
+          }, 20);
+        } else {
+          node.style.transition = `opacity ${duration}ms linear, transform ${duration}ms linear`;
+          node.style.transform = `translateY(-${Math.random()*120}px) scale(0.95)`;
+          node.style.opacity = 0.9;
+        }
+
+        effectsLayer.appendChild(node);
+
+        setTimeout(()=> {
+          if(node && node.parentNode) node.parentNode.removeChild(node);
+          recycleNode(node);
+          activeCount = Math.max(0, activeCount - 1);
+        }, duration + 80);
+      }
+
+      // Start continuous spawning of 50 effects (high intensity by default)
+      function startAnimations(){
+        if(running) return;
+        running = true;
+        // clear previous intervals
+        intervals.forEach(id => clearInterval(id));
+        intervals = [];
+
+        const baseDelay = 700; // frequent spawns for high intensity
+        EMOJIS.forEach((emoji, idx) => {
+          const stagger = idx * 120;
+          const id = setInterval(()=> {
+            const intensity = DEFAULT_INTENSITY; // fixed high intensity
+            const burst = Math.random() < intensity ? 1 + Math.floor(intensity*3) : 1;
+            for(let b=0;b<burst;b++){
+              spawnEmoji(emoji, { size: 16 + Math.random()*40, duration: 3000 + Math.random()*4200 });
+            }
+          }, Math.max(120, baseDelay - (DEFAULT_INTENSITY * 6)) + stagger);
+          intervals.push(id);
+        });
+
+        // monitor to prevent overload
+        const monitorId = setInterval(()=> {
+          if(activeCount > DEFAULT_ACTIVE_CAP){
+            intervals.forEach((id, i) => { if(i % 2 === 0) clearInterval(id); });
+            setTimeout(()=> {
+              if(!running) return;
+              intervals = [];
+              startAnimations();
+            }, 1200);
+            clearInterval(monitorId);
+          }
+        }, 900);
+      }
+
+      function stopAnimations(){
+        running = false;
+        intervals.forEach(id => clearInterval(id));
+        intervals = [];
+      }
+
+      // UI handlers
+      window.chooseStatus = function(status){
+        statusCard.style.display = 'none';
+        if(status === 'single'){
+          document.body.insertAdjacentHTML('beforeend', `
+            <div class="single-screen" id="singleScreen">
+              <div class="single-card">
+                <h2 class="single-title">💔 Single Mode</h2>
+                <div class="broken-heart">💔</div>
+                <p class="single-text">Good luck next time... Love finds us when we least expect it. Take care of yourself — you're worth the wait. ✨</p>
+                <div class="try-again">
+                  <button class="btn" onclick="reloadToStart()">Try Again</button>
+                  <button class="btn secondary" onclick="showCheer()">Cheer Me Up</button>
+                </div>
+              </div>
+            </div>
+          `);
+        } else {
+          formCard.style.display = 'block';
+          setTimeout(()=>document.getElementById('boy').focus(), 120);
+        }
+      };
+
+      window.reloadToStart = function(){
+        const s = document.getElementById('singleScreen');
+        if(s) s.remove();
+        statusCard.style.display = 'block';
+      };
+
+      window.showCheer = function(){
+        for(let i=0;i<30;i++){
+          const cheer = ["🌟","🦋","☕","🍪","🎧","📚","🧸","🌈"][Math.floor(Math.random()*8)];
+          spawnEmoji(cheer, { size: 20 + Math.random()*28, duration: 3000 + Math.random()*2000 });
+        }
+      };
+
+      window.celebrateLove = function(){
+        const boy = document.getElementById('boy').value.trim();
+        const girl = document.getElementById('girl').value.trim();
+        if(!boy || !girl){
+          loveMessage.style.display = 'inline-block';
+          loveMessage.textContent = 'Please enter both names 💕';
+          return;
+        }
+        loveMessage.style.display = 'inline-block';
+        loveMessage.innerHTML = `✨ <strong style="color:${getComputedStyle(document.documentElement).getPropertyValue('--muted')};">${escapeHtml(boy)}</strong> ❤️ <strong style="color:${getComputedStyle(document.documentElement).getPropertyValue('--muted')};">${escapeHtml(girl)}</strong> ✨<br>May your love shine forever! 🌹`;
+        // celebratory burst
+        for(let i=0;i<40;i++){
+          const e = EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+          setTimeout(()=>spawnEmoji(e, { size: 22 + Math.random()*36, duration: 3000 + Math.random()*3000 }), i*35);
+        }
+        // start continuous animations if not already running
+        startAnimations();
+      };
+
+      function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+      // Pause/resume on visibility change
+      document.addEventListener('visibilitychange', ()=> {
+        if(document.hidden) stopAnimations();
+        else if(formCard.style.display === 'block') startAnimations();
+      });
+
+      // Allow Enter to submit
+      document.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' && formCard.style.display === 'block'){
+          celebrateBtn.click();
+        }
+      });
+
+      // Expose debug stop
+      window._stopAll = stopAnimations;
+
+    })();
+  </script>
+</body>
+</html>
